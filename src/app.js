@@ -24,8 +24,8 @@ server.get("/", (req, res) => {
     message: "API REST con Express y MongoDB"
   })
 })
-server.use("/products", authMiddleware, ProductRouter)
-server.use("/auth", AuthRouter)
+server.use("/api/products", authMiddleware, ProductRouter)
+server.use("/api/auth", AuthRouter)
 
 server.listen(PORT, () => {
   connectDb()
