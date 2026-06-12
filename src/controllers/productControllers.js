@@ -18,10 +18,10 @@ const getProduct = async (req, res) => {
   try {
     const id = req.params.id
     const foundProduct = await Product.findById(id, { userId: 0 })
-    if (!foundProduct) res.status(404).json({ error: "Not found" })
-    res.json(foundProduct)
+    if (!foundProduct) return res.status(404).json({ success: false, error: "Product not found" })
+    res.json({ success: true, data: foundProduct, message: "Product fetched successfully" })
   } catch (error) {
-    res.status(400).json({ error: "Invalid ID format" })
+    res.status(400).json({ success: false, error: "Invalid ID format" })
   }
 }
 
