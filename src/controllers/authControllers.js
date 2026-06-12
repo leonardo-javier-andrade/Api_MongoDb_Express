@@ -13,6 +13,11 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, error: "username, email and password are required" })
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, error: "Invalid email format" })
+    }
+
     const foundUser = await User.findOne({ email })
 
     if (foundUser) {
