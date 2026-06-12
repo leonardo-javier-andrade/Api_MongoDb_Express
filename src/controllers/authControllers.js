@@ -9,6 +9,10 @@ const register = async (req, res) => {
     const { body } = req
     const { password, username, email } = body
 
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, error: "username, email and password are required" })
+    }
+
     const foundUser = await User.findOne({ email })
 
     if (foundUser) {

@@ -30,6 +30,10 @@ const createProduct = async (req, res) => {
     const body = req.body
     const userLogged = req.userLogged
 
+    if (!body.name) {
+      return res.status(400).json({ success: false, error: "name is required" })
+    }
+
     const newProduct = await Product.create({
       name: body.name,
       price: body.price,
