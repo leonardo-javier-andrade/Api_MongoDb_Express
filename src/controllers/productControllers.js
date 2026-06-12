@@ -58,12 +58,19 @@ const updateProduct = async (req, res) => {
   try {
     const id = req.params.id
     const body = req.body
+    const userLogged = req.userLogged
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, { ...body, available: body.stock > 0 }, { new: true, projection: { userId: 0 } })
+    const product = await Product.findById(id)
 
-    if (!updatedProduct) {
+    if (!product) {
       return res.status(404).json({ success: false, error: "Product not found" })
     }
+
+    if (product.userId.toString() !== userLogged.id) {
+      return res.status(403).json({ success: false, error: "Forbidden: this product does not belong to you" })
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, { ...body, available: body.stock > 0 }, { new: true, projection: { userId: 0 } })
 
     res.json({
       success: true,
@@ -78,19 +85,23 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params
+    const userLogged = req.userLogged
 
-    const deletedProduct = await Product.findByIdAndDelete(id)
+    const product = await Product.findById(id)
 
-    if (!deletedProduct) {
+    if (!product) {
       return res.status(404).json({ success: false, error: "Product not found" })
     }
 
-    const product = deletedProduct.toObject()
-    delete product.userId
+    if (product.userId.toString() !== userLogged.id) {
+      return res.status(403).json({ success: false, error: "Forbidden: this product does not belong to you" })
+    }
 
-    const publicDataProduct = { ...deletedProduct }
+    await Product.findByIdAndDelete(id)
 
-    res.json({ success: true, data: product, message: "Product deleted successfully" })
+    const { userId, ...publicDataProduct } = product.toObject()
+
+    res.json({ success: true, data: publicDataProduct, message: "Product deleted successfully" })
   } catch (error) {
     res.status(400).json({ success: false, error: "Invalid ID format" })
   }
